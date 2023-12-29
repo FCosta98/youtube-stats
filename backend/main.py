@@ -6,6 +6,7 @@ import random
 from dotenv import load_dotenv
 import os
 import concurrent.futures
+from io import StringIO
 from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, Response
 from fastapi.middleware.cors import CORSMiddleware
 from googleapiclient.discovery import build
@@ -220,3 +221,17 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
 
     return Response(content=csv_string, media_type="text/csv")
 
+@app.post("/generate-graph")
+async def generate_graph(file: UploadFile = File(...), response: Response = None):
+    if file.filename.endswith('.csv'):
+        content = await file.read()
+
+        content_str = str(content, 'utf-8')  # Convert bytes to string
+        # Use StringIO to create a file-like object to pass to pandas
+        csv_data = StringIO(content_str)
+        
+        # Read CSV data into a DataFrame
+        df = pd.read_csv(csv_data)
+
+        print("DF :", df)
+        print("COLUMNS :", df.columns)
