@@ -10,6 +10,7 @@ from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, R
 from fastapi.middleware.cors import CORSMiddleware
 from googleapiclient.discovery import build
 from pydantic import BaseModel
+from utils.category_map import category_map
 
 
 from fastapi.security import OAuth2PasswordBearer
@@ -166,6 +167,8 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
 
+    #add category name
+
     print("DATAFRAME :", merged_df)
     print("RESULT Dataframe COLUMNS :", merged_df.columns)
     print(f"Execution time TOTAL: {execution_time} seconds")
@@ -176,7 +179,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
 
-    # Return the CSV as the response
     return Response(content=csv_string, media_type="text/csv")
 
 
@@ -206,6 +208,7 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     videos_df["tags"] = snippet_df["tags"]
     videos_df["categoryId"] = snippet_df["categoryId"]
     videos_df["languages"] = snippet_df["defaultAudioLanguage"]
+    videos_df["category_name"] = videos_df["categoryId"].replace(category_map)
 
     contentDetails_df = pd.DataFrame(videos_df['contentDetails'].tolist())
     videos_df["duration"] = contentDetails_df["duration"]
@@ -222,8 +225,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     merged_df = pd.merge(contents_df, videos_df, on='id', how='left')
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
-    print("RESULT Dataframe COLUMNS :", videos_df.columns)
-    print("MERGED COLUMNS :", merged_df.columns)
 
     csv_string = merged_df.to_csv(index=False)
 
@@ -231,7 +232,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
 
-    # Return the CSV as the response
     return Response(content=csv_string, media_type="text/csv")
 
 
