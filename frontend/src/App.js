@@ -1,32 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './components/Login'
+import Callback from './components/Callback';
+import Dashboard from './components/Dashboard';
+import Drag from './components/Drag';
 
-const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+export default function App() {
+    const [googleAccessToken, setGoogleAccessToken] = useState(localStorage.getItem('googleAccessToken'));
+    const [isAuth, setIsAuth] = useState(false)
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/login/google');
+    useEffect(() => {
+        if (googleAccessToken) {
+            console.log("GOOGLE TOKEN:", googleAccessToken)
+            setGoogleAccessToken(googleAccessToken)
+            setIsAuth(true);
+        }
+    }, [googleAccessToken]);
 
-      setLoggedIn(true);
-      window.location.href = response.data.url;
-    } catch (error) {
-      console.error('Error logging in:', error);
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<NewRoute isAuth={isAuth} token={googleAccessToken} />} />
+                <Route path="/callback" element={<Callback />} />
+                <Route path="/drag" element={<Drag />} />
+            </Routes>
+        </Router>
+    );
+}
+
+function NewRoute({ isAuth, token }) {
+    if (isAuth) {
+        return <Dashboard token={token}/>
     }
-  };
-
-  return (
-    <div>
-      {loggedIn ? (
-        <h1>Welcome to the Home page!</h1>
-      ) : (
-        <div>
-          <h1>Login Page</h1>
-          <button onClick={handleLogin}>Login with Google</button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default App;
+    else {
+        return <Login />
+    }
+}
