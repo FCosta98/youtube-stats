@@ -124,8 +124,6 @@ def fetch_video_data(ids):
 
 @app.post("/upload-history2")
 async def upload_file(file: UploadFile = File(...), response: Response = None):
-    print("HERE I AM BABY")
-    start_time = time.time()
     contents = await file.read()
     contents = json.loads(contents)
     contents_df = pd.DataFrame(contents)
@@ -144,9 +142,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     for future in futures:
         new_videos_df = pd.DataFrame(future.result())
         videos_df = pd.concat([videos_df, new_videos_df])
-    
-    end_time = time.time()
-    execution_time = end_time - start_time
 
     snippet_df = pd.DataFrame(videos_df['snippet'].tolist())
     videos_df["channelTitle"] = snippet_df["channelTitle"]
@@ -167,10 +162,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     merged_df = pd.merge(contents_df, videos_df, on='id', how='left')
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
-
-    print("DATAFRAME :", merged_df)
-    print("RESULT Dataframe COLUMNS :", merged_df.columns)
-    print(f"Execution time TOTAL: {execution_time} seconds")
 
     csv_string = merged_df.to_csv(index=False)
 
@@ -217,10 +208,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     videos_df["likeCount"] = statistics_df["likeCount"]
     videos_df["commentCount"] = statistics_df["commentCount"]
 
-    pd.set_option('display.max_colwidth', None)
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None) 
-
     merged_df = pd.merge(contents_df, videos_df, on='id', how='left')
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
@@ -232,36 +219,4 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Type"] = "text/csv"
 
     return Response(content=csv_string, media_type="text/csv")
-
-
-
-
-
-
-#FIRST TUTORIAL
-
-@app.get("/video")
-def get_video(url: str):
-    video_id = url.split("v=")[1]
-    video_response = youtube.videos().list(
-        part="snippet, statistics",
-        id=video_id,
-    ).execute()
-
-    title = video_response["items"][0]["snippet"]["title"]
-    description = video_response["items"][0]["snippet"]["description"]
-    category_id = video_response["items"][0]["snippet"]["categoryId"]
-
-    category_response = youtube.videoCategories().list(
-        part="snippet",
-        id=category_id,
-    ).execute()
-    category = category_response["items"][0]["snippet"]["title"]
-
-    return {
-        "url": url,
-        "title": title,
-        "description": description,
-        "category": category,
-    }
 
