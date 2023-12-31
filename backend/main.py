@@ -6,11 +6,14 @@ import random
 from dotenv import load_dotenv
 import os
 import concurrent.futures
+from io import StringIO
 from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, Response
 from fastapi.middleware.cors import CORSMiddleware
 from googleapiclient.discovery import build
 from pydantic import BaseModel
+from utils.utils import get_bar_graph_data
 from utils.category_map import category_map
+from utils.colors_map import colors_map
 
 
 from fastapi.security import OAuth2PasswordBearer
@@ -124,14 +127,14 @@ def fetch_video_data(ids):
 
 @app.post("/upload-history2")
 async def upload_file(file: UploadFile = File(...), response: Response = None):
-    print("HERE I AM BABY")
-    start_time = time.time()
     contents = await file.read()
     contents = json.loads(contents)
     contents_df = pd.DataFrame(contents)
     contents_df["id"] = contents_df['titleUrl'].str[32:].astype('str')
 
-    all_ids = list(contents_df["id"])
+    contents_df = contents_df.loc[pd.isna(contents_df['details'])] #remove ads
+    contents_df_without_dupplicate = contents_df.drop_duplicates(subset='id', keep='first') #remove dupplicate id
+    all_ids = list(contents_df_without_dupplicate["id"])
     sublists_ids = [all_ids[i:i+50] for i in range(0, len(all_ids), 50)]
     videos_df = pd.DataFrame()
 
@@ -144,12 +147,11 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     for future in futures:
         new_videos_df = pd.DataFrame(future.result())
         videos_df = pd.concat([videos_df, new_videos_df])
-    
-    end_time = time.time()
-    execution_time = end_time - start_time
 
-    snippet_df = pd.DataFrame(videos_df['snippet'].tolist())
+    videos_df = videos_df.reset_index(drop=True)
+    snippet_df = pd.DataFrame(list(videos_df['snippet']))
     videos_df["channelTitle"] = snippet_df["channelTitle"]
+    videos_df["real_title"] = snippet_df["title"]
     videos_df["publishedAt"] = snippet_df["publishedAt"]
     videos_df["tags"] = snippet_df["tags"]
     videos_df["categoryId"] = snippet_df["categoryId"]
@@ -168,15 +170,13 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
 
-    print("DATAFRAME :", merged_df)
-    print("RESULT Dataframe COLUMNS :", merged_df.columns)
-    print(f"Execution time TOTAL: {execution_time} seconds")
-
     csv_string = merged_df.to_csv(index=False)
 
     # Set response headers
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
+
+    await file.close()
 
     return Response(content=csv_string, media_type="text/csv")
 
@@ -188,6 +188,9 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     contents = json.loads(contents)
     contents_df = pd.DataFrame(contents)
     contents_df["id"] = contents_df['titleUrl'].str[32:].astype('str')
+
+    #remove ads
+    contents_df = contents_df.loc[pd.isna(contents_df['details'])]
 
     all_ids = list(contents_df["id"])
     sublists_ids = [all_ids[i:i+50] for i in range(0, len(all_ids), 50)]
@@ -217,10 +220,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     videos_df["likeCount"] = statistics_df["likeCount"]
     videos_df["commentCount"] = statistics_df["commentCount"]
 
-    pd.set_option('display.max_colwidth', None)
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None) 
-
     merged_df = pd.merge(contents_df, videos_df, on='id', how='left')
     columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
     merged_df = merged_df.drop(columns=columns_to_remove)
@@ -231,37 +230,44 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
 
+    await file.close()
+
     return Response(content=csv_string, media_type="text/csv")
 
+@app.post("/generate-graph")
+async def generate_graph(file: UploadFile = File(...)):
+    if file.filename.endswith('.csv'):
+        content = await file.read()
+
+        content_str = str(content, 'utf-8')
+        csv_data = StringIO(content_str)
+        
+        df = pd.read_csv(csv_data)
+
+        df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        videos_watched = df.groupby(df['time'].dt.to_period('M')).size()
+        months = [str(period) for period in videos_watched.index]
+        counts = list(videos_watched)
+        videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)')
+
+        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)[:10]
+        months = [str(creator) for creator in creator_watched.index]
+        counts = list(creator_watched)
+        creator_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)')
+
+        category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
+        categories = [str(category) for category in category_df.index]
+        counts = list(creator_watched)
+        colors = [colors_map[i] for i in range(len(categories))]
+        category_graph_data = get_bar_graph_data(categories, counts, colors)
 
 
 
+        await file.close()
 
 
-#FIRST TUTORIAL
-
-@app.get("/video")
-def get_video(url: str):
-    video_id = url.split("v=")[1]
-    video_response = youtube.videos().list(
-        part="snippet, statistics",
-        id=video_id,
-    ).execute()
-
-    title = video_response["items"][0]["snippet"]["title"]
-    description = video_response["items"][0]["snippet"]["description"]
-    category_id = video_response["items"][0]["snippet"]["categoryId"]
-
-    category_response = youtube.videoCategories().list(
-        part="snippet",
-        id=category_id,
-    ).execute()
-    category = category_response["items"][0]["snippet"]["title"]
-
-    return {
-        "url": url,
-        "title": title,
-        "description": description,
-        "category": category,
-    }
-
+        return {
+            "videos_watched_graph": videos_watched_graph_data,
+            "creator_watched_graph": creator_watched_graph_data,
+            "category_graph_data": category_graph_data,
+        }

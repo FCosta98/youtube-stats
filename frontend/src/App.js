@@ -4,6 +4,7 @@ import Login from './components/Login'
 import Callback from './components/Callback';
 import Dashboard from './components/Dashboard';
 import Drag from './components/Drag';
+import Analytics from './pages/Analytics';
 
 export default function App() {
     const [googleAccessToken, setGoogleAccessToken] = useState(localStorage.getItem('googleAccessToken'));
@@ -23,6 +24,7 @@ export default function App() {
                 <Route path="/" element={<NewRoute isAuth={isAuth} token={googleAccessToken} />} />
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/drag" element={<Drag />} />
+                <Route path="/analytics" element={<Analytics />} />
             </Routes>
         </Router>
     );
