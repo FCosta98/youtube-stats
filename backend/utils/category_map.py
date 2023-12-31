@@ -16,6 +16,7 @@ category_map = {
     "26": "How to & Style",
     "27": "Education",
     "28": "Science & Technology",
+    "29": "Nonprofits & Activism",
     "30": "Movies",
     "31": "Anime/Animation",
     "32": "Action/Adventure",

@@ -11,7 +11,9 @@ from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, R
 from fastapi.middleware.cors import CORSMiddleware
 from googleapiclient.discovery import build
 from pydantic import BaseModel
+from utils.utils import get_bar_graph_data
 from utils.category_map import category_map
+from utils.colors_map import colors_map
 
 
 from fastapi.security import OAuth2PasswordBearer
@@ -244,33 +246,22 @@ async def generate_graph(file: UploadFile = File(...)):
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         videos_watched = df.groupby(df['time'].dt.to_period('M')).size()
-        months = [str(period) for period in videos_watched.index]  # Convert periods to strings
+        months = [str(period) for period in videos_watched.index]
         counts = list(videos_watched)
-        videos_watched_graph_data = {
-            "labels" : months,
-            "datasets": [
-                {
-                    "label": 'Watched video ',
-                    "data": counts,
-                    "backgroundColor": 'rgba(255, 99, 132, 0.5)',
-                },
-            ],
-        }
+        videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)')
 
         creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)[:10]
-        print("CREATOR :", creator_watched)
         months = [str(creator) for creator in creator_watched.index]
         counts = list(creator_watched)
-        creator_watched_graph_data = {
-            "labels" : months,
-            "datasets": [
-                {
-                    "label": 'Watched Creator ',
-                    "data": counts,
-                    "backgroundColor": 'rgba(255, 99, 132, 0.5)',
-                },
-            ],
-        }
+        creator_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)')
+
+        category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
+        categories = [str(category) for category in category_df.index]
+        counts = list(creator_watched)
+        colors = [colors_map[i] for i in range(len(categories))]
+        category_graph_data = get_bar_graph_data(categories, counts, colors)
+
+
 
         await file.close()
 
@@ -278,4 +269,5 @@ async def generate_graph(file: UploadFile = File(...)):
         return {
             "videos_watched_graph": videos_watched_graph_data,
             "creator_watched_graph": creator_watched_graph_data,
+            "category_graph_data": category_graph_data,
         }

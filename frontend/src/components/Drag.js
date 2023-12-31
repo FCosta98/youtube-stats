@@ -7,16 +7,19 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
+    ArcElement,
     Title,
     Tooltip,
     Legend,
   } from 'chart.js';
 import BarGraph from "./charts/BarGraph.js"
+import DoughnutGraph from "./charts/DoughnutGraph.js"
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    ArcElement,
     Title,
     Tooltip,
     Legend
@@ -28,6 +31,7 @@ const Drag = () => {
     const [selectedFile2, setSelectedFile2] = useState(null);
     const [videosWatchedChartData, setVideosWatchedChartData] = useState(null)
     const [creatorWatchedChartData, setCreatorWatchedChartData] = useState(null)
+    const [categoriesChartData, setCategoriesChartData] = useState(null)
 
     const handleFileChange = (event) => {
         console.log("FILE SELECTED :", event.target.files[0])
@@ -105,6 +109,7 @@ const Drag = () => {
                 console.log('File uploaded successfully!');
                 setVideosWatchedChartData(response.data["videos_watched_graph"])
                 setCreatorWatchedChartData(response.data["creator_watched_graph"])
+                setCategoriesChartData(response.data["category_graph_data"])
                 // window.location.href = "/analytics"
             } else {
                 console.error('Upload failed with status:', response.status);
@@ -125,6 +130,7 @@ const Drag = () => {
 
             {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} />}
             {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} />}
+            {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} />}
         </div>
     );
 };
