@@ -80,6 +80,7 @@ const Drag = () => {
 
                 // Remove the link after download
                 document.body.removeChild(link);
+                return;
             } else {
                 console.error('Upload failed with status:', response.status);
             }
@@ -107,9 +108,10 @@ const Drag = () => {
 
             if (response.status === 200) {
                 console.log('File uploaded successfully!');
-                setVideosWatchedChartData(response.data["videos_watched_graph"])
-                setCreatorWatchedChartData(response.data["creator_watched_graph"])
-                setCategoriesChartData(response.data["category_graph_data"])
+                setVideosWatchedChartData(response.data["videos_watched_graph"]);
+                setCreatorWatchedChartData(response.data["creator_watched_graph"]);
+                setCategoriesChartData(response.data["category_graph_data"]);
+                return;
                 // window.location.href = "/analytics"
             } else {
                 console.error('Upload failed with status:', response.status);
