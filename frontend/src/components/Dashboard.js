@@ -7,7 +7,7 @@ export default function Dashboard({token}) {
 
   const handleLogout = async () => {
     localStorage.removeItem('googleAccessToken');
-    window.location.href = '/';
+    window.location.href = '/login';
   };
 
 

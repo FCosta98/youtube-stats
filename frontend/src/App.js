@@ -10,18 +10,19 @@ export default function App() {
     const [googleAccessToken, setGoogleAccessToken] = useState(localStorage.getItem('googleAccessToken'));
     const [isAuth, setIsAuth] = useState(false)
 
-    // useEffect(() => {
-    //     if (googleAccessToken) {
-    //         console.log("GOOGLE TOKEN:", googleAccessToken)
-    //         setGoogleAccessToken(googleAccessToken)
-    //         setIsAuth(true);
-    //     }
-    // }, [googleAccessToken]);
+    //login useeffect
+    useEffect(() => {
+        if (googleAccessToken) {
+            console.log("GOOGLE TOKEN:", googleAccessToken)
+            setGoogleAccessToken(googleAccessToken)
+            setIsAuth(true);
+        }
+    }, [googleAccessToken]);
 
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<NewRoute isAuth={isAuth} token={googleAccessToken} />} />
+                <Route path="/login" element={<NewRoute isAuth={isAuth} token={googleAccessToken} />} />
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/drag" element={<Drag />} />
                 <Route path="/analytics" element={<Analytics />} />

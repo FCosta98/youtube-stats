@@ -11,11 +11,11 @@ export default function Callback() {
             .then(res => {
                 console.log("RESPONSE DATA :", res.data.token)
                 localStorage.setItem('googleAccessToken', res.data.token);
-                window.location.href = '/';
+                window.location.href = '/login';
             })
             .catch((err) => {
                 console.log("ERROR 123:", err);
-                window.location.href = '/';
+                window.location.href = '/login';
             })
         };
         handleCallback();

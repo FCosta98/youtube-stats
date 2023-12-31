@@ -33,7 +33,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", "http://localhost:3000", "https://accounts.google.com/o/oauth2/auth", "http://127.0.0.1:8000/auth/google"],
+    allow_origins=["*", "http://localhost:3000", "https://accounts.google.com/o/oauth2/auth", "http://127.0.0.1:8000/auth/google", "http://localhost:3000/login"],
     allow_credentials=True,
     # allow_methods=["*"],
     # allow_headers=["*"],
@@ -97,7 +97,7 @@ def fetch_video_data(ids):
     return video_response["items"]
 
 
-@app.post("/upload-history2")
+@app.post("/upload-history")
 async def upload_file(file: UploadFile = File(...), response: Response = None):
     contents = await file.read()
     contents = json.loads(contents)
