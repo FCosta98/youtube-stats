@@ -130,7 +130,9 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     contents_df = pd.DataFrame(contents)
     contents_df["id"] = contents_df['titleUrl'].str[32:].astype('str')
 
-    all_ids = list(contents_df["id"])
+    contents_df = contents_df.loc[pd.isna(contents_df['details'])] #remove ads
+    contents_df_without_dupplicate = contents_df.drop_duplicates(subset='id', keep='first') #remove dupplicate id
+    all_ids = list(contents_df_without_dupplicate["id"])
     sublists_ids = [all_ids[i:i+50] for i in range(0, len(all_ids), 50)]
     videos_df = pd.DataFrame()
 
@@ -144,8 +146,10 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
         new_videos_df = pd.DataFrame(future.result())
         videos_df = pd.concat([videos_df, new_videos_df])
 
-    snippet_df = pd.DataFrame(videos_df['snippet'].tolist())
+    videos_df = videos_df.reset_index(drop=True)
+    snippet_df = pd.DataFrame(list(videos_df['snippet']))
     videos_df["channelTitle"] = snippet_df["channelTitle"]
+    videos_df["real_title"] = snippet_df["title"]
     videos_df["publishedAt"] = snippet_df["publishedAt"]
     videos_df["tags"] = snippet_df["tags"]
     videos_df["categoryId"] = snippet_df["categoryId"]
@@ -170,6 +174,8 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
 
+    await file.close()
+
     return Response(content=csv_string, media_type="text/csv")
 
 
@@ -180,6 +186,9 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     contents = json.loads(contents)
     contents_df = pd.DataFrame(contents)
     contents_df["id"] = contents_df['titleUrl'].str[32:].astype('str')
+
+    #remove ads
+    contents_df = contents_df.loc[pd.isna(contents_df['details'])]
 
     all_ids = list(contents_df["id"])
     sublists_ids = [all_ids[i:i+50] for i in range(0, len(all_ids), 50)]
@@ -219,19 +228,54 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
 
+    await file.close()
+
     return Response(content=csv_string, media_type="text/csv")
 
 @app.post("/generate-graph")
-async def generate_graph(file: UploadFile = File(...), response: Response = None):
+async def generate_graph(file: UploadFile = File(...)):
     if file.filename.endswith('.csv'):
         content = await file.read()
 
-        content_str = str(content, 'utf-8')  # Convert bytes to string
-        # Use StringIO to create a file-like object to pass to pandas
+        content_str = str(content, 'utf-8')
         csv_data = StringIO(content_str)
         
-        # Read CSV data into a DataFrame
         df = pd.read_csv(csv_data)
 
-        print("DF :", df)
-        print("COLUMNS :", df.columns)
+        df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        videos_watched = df.groupby(df['time'].dt.to_period('M')).size()
+        months = [str(period) for period in videos_watched.index]  # Convert periods to strings
+        counts = list(videos_watched)
+        videos_watched_graph_data = {
+            "labels" : months,
+            "datasets": [
+                {
+                    "label": 'Watched video ',
+                    "data": counts,
+                    "backgroundColor": 'rgba(255, 99, 132, 0.5)',
+                },
+            ],
+        }
+
+        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)[:10]
+        print("CREATOR :", creator_watched)
+        months = [str(creator) for creator in creator_watched.index]
+        counts = list(creator_watched)
+        creator_watched_graph_data = {
+            "labels" : months,
+            "datasets": [
+                {
+                    "label": 'Watched Creator ',
+                    "data": counts,
+                    "backgroundColor": 'rgba(255, 99, 132, 0.5)',
+                },
+            ],
+        }
+
+        await file.close()
+
+
+        return {
+            "videos_watched_graph": videos_watched_graph_data,
+            "creator_watched_graph": creator_watched_graph_data,
+        }

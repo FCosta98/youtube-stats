@@ -5,7 +5,7 @@
   "snippet": {
     "publishedAt": datetime, //HERE
     "channelId": string,
-    "title": string,
+    "title": string, //HERE
     "description": string,
     "thumbnails": {
       (key): {

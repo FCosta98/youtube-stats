@@ -1,9 +1,33 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+//chart.js import
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+  } from 'chart.js';
+import BarGraph from "./charts/BarGraph.js"
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+
+
 const Drag = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFile2, setSelectedFile2] = useState(null);
+    const [videosWatchedChartData, setVideosWatchedChartData] = useState(null)
+    const [creatorWatchedChartData, setCreatorWatchedChartData] = useState(null)
 
     const handleFileChange = (event) => {
         console.log("FILE SELECTED :", event.target.files[0])
@@ -25,7 +49,7 @@ const Drag = () => {
         formData.append('file', selectedFile);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/upload-history', formData, {
+            const response = await axios.post('http://127.0.0.1:8000/upload-history2', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -78,8 +102,10 @@ const Drag = () => {
             });
 
             if (response.status === 200) {
-                // Handle success response from backend
                 console.log('File uploaded successfully!');
+                setVideosWatchedChartData(response.data["videos_watched_graph"])
+                setCreatorWatchedChartData(response.data["creator_watched_graph"])
+                // window.location.href = "/analytics"
             } else {
                 console.error('Upload failed with status:', response.status);
             }
@@ -96,6 +122,9 @@ const Drag = () => {
             <h1>Drag and drop your extended-history.csv file</h1>
             <input type="file" onChange={handleFileChange2} />
             <button onClick={generateGraph}>Generate yours graphs</button>
+
+            {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} />}
+            {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} />}
         </div>
     );
 };
