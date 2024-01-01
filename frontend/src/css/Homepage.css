@@ -1,0 +1,45 @@
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex:1;
+    align-items: center;
+    text-align: center;
+    padding-top: 40px;
+    background-color: #f0f8ff;
+}
+.content{
+    width: 600px;
+    margin-top: 50px;
+    text-align: center;
+    align-items: center;
+}
+.step-section{
+    height: 150px;
+    margin: 15px 0;
+    border: 1px solid #333;
+    border-radius: 12px;
+}
+.step-section-title{
+    margin: 10px 0;
+}
+.step-section-cta{
+    padding: 10px 20px;
+    margin-top: 55px;
+    border-radius: 4px;
+    background-color: orange;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+}
+.step-section button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.step-section button:hover {
+    background-color: #0056b3;
+}
