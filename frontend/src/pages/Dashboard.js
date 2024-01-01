@@ -3,11 +3,10 @@ import React, { useEffect, useState } from 'react';
 
 export default function Dashboard({token}) {
   const [userData, setUserData] = useState()
-  const [history, setHistory] = useState()
 
   const handleLogout = async () => {
     localStorage.removeItem('googleAccessToken');
-    window.location.href = '/';
+    window.location.href = '/login';
   };
 
 

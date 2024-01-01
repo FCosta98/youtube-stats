@@ -33,7 +33,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", "http://localhost:3000", "https://accounts.google.com/o/oauth2/auth", "http://127.0.0.1:8000/auth/google"],
+    allow_origins=["*", "http://localhost:3000", "https://accounts.google.com/o/oauth2/auth", "http://127.0.0.1:8000/auth/google", "http://localhost:3000/login"],
     allow_credentials=True,
     # allow_methods=["*"],
     # allow_headers=["*"],
@@ -86,34 +86,6 @@ async def auth_google(token: str = Depends(get_token_authorization)):
         "user_data": user_info.json()
     }
 
-#Example of a ytb api call with authentification
-@app.get("/history2")
-async def history2():
-    scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
-    api_service_name = "youtube"
-    api_version = "v3"
-    client_secrets_file = "secret_file.json"
-
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
-    # credentials = flow.run_console() 
-    credentials = flow.run_local_server(port=8080)
-    youtube = build(api_service_name, api_version, credentials=credentials)
-
-    request = youtube.videos().list(
-        part="snippet,contentDetails,statistics",
-        maxResults=50,
-        access_token="ACCES_TOKEN_EXAMPLE"
-    )
-    response = request.execute()
-
-    print(response)
-    return response
-
 def fetch_video_data(ids):
     youtube = build("youtube", "v3", developerKey=API_KEYS[random.randint(0, 2)])
     str_ids = ','.join(ids)
@@ -125,7 +97,7 @@ def fetch_video_data(ids):
     return video_response["items"]
 
 
-@app.post("/upload-history2")
+@app.post("/upload-history")
 async def upload_file(file: UploadFile = File(...), response: Response = None):
     contents = await file.read()
     contents = json.loads(contents)
@@ -180,59 +152,6 @@ async def upload_file(file: UploadFile = File(...), response: Response = None):
 
     return Response(content=csv_string, media_type="text/csv")
 
-
-@app.post("/upload-history")
-async def upload_file(file: UploadFile = File(...), response: Response = None):
-
-    contents = await file.read()
-    contents = json.loads(contents)
-    contents_df = pd.DataFrame(contents)
-    contents_df["id"] = contents_df['titleUrl'].str[32:].astype('str')
-
-    #remove ads
-    contents_df = contents_df.loc[pd.isna(contents_df['details'])]
-
-    all_ids = list(contents_df["id"])
-    sublists_ids = [all_ids[i:i+50] for i in range(0, len(all_ids), 50)]
-    videos_df = pd.DataFrame()
-
-    str_ids = ','.join(sublists_ids[0])
-    video_response = youtube.videos().list(
-        part="snippet, statistics, contentDetails",
-        id=str_ids,
-        maxResults=50,
-    ).execute()
-    videos_df = pd.DataFrame(video_response["items"])
-
-    snippet_df = pd.DataFrame(videos_df['snippet'].tolist())
-    videos_df["channelTitle"] = snippet_df["channelTitle"]
-    videos_df["publishedAt"] = snippet_df["publishedAt"]
-    videos_df["tags"] = snippet_df["tags"]
-    videos_df["categoryId"] = snippet_df["categoryId"]
-    videos_df["languages"] = snippet_df["defaultAudioLanguage"]
-    videos_df["category_name"] = videos_df["categoryId"].replace(category_map)
-
-    contentDetails_df = pd.DataFrame(videos_df['contentDetails'].tolist())
-    videos_df["duration"] = contentDetails_df["duration"]
-
-    statistics_df = pd.DataFrame(videos_df['statistics'].tolist())
-    videos_df["viewCount"] = statistics_df["viewCount"]
-    videos_df["likeCount"] = statistics_df["likeCount"]
-    videos_df["commentCount"] = statistics_df["commentCount"]
-
-    merged_df = pd.merge(contents_df, videos_df, on='id', how='left')
-    columns_to_remove = ['snippet', 'contentDetails', 'statistics', 'header', 'subtitles', 'activityControls']
-    merged_df = merged_df.drop(columns=columns_to_remove)
-
-    csv_string = merged_df.to_csv(index=False)
-
-    # Set response headers
-    response.headers["Content-Disposition"] = "attachment; filename=data.csv"
-    response.headers["Content-Type"] = "text/csv"
-
-    await file.close()
-
-    return Response(content=csv_string, media_type="text/csv")
 
 @app.post("/generate-graph")
 async def generate_graph(file: UploadFile = File(...)):
