@@ -5,6 +5,7 @@ import Callback from './pages/Callback';
 import Dashboard from './pages/Dashboard';
 import Homepage from './pages/Homepage';
 import Analytics from './pages/Analytics';
+import About from './pages/About';
 
 export default function App() {
     const [googleAccessToken, setGoogleAccessToken] = useState(localStorage.getItem('googleAccessToken'));
@@ -26,6 +27,7 @@ export default function App() {
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/" element={<Homepage />} />
                 <Route path="/analytics" element={<Analytics />} />
+                <Route path="/about" element={<About />} />
             </Routes>
         </Router>
     );

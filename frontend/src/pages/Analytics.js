@@ -2,6 +2,8 @@ import axios from "axios"
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header.js';
 
+import '../css/Analytics.css'
+
 //chart.js import
 import {
     Chart as ChartJS,
@@ -60,7 +62,6 @@ export default function Analytics() {
                 setCreatorWatchedChartData(response.data["creator_watched_graph"]);
                 setCategoriesChartData(response.data["category_graph_data"]);
                 return;
-                // window.location.href = "/analytics"
             } else {
                 console.error('Upload failed with status:', response.status);
             }
@@ -72,9 +73,14 @@ export default function Analytics() {
     return (
         <div>
             <Header />
-            <h1>Drag and drop your extended-history.csv file</h1>
-            <input type="file" onChange={handleFileChange} />
-            <button onClick={generateGraph}>Generate yours graphs</button>
+            <div className="upload-section">
+                <h1 className="upload-section-title">Drag and drop your extended-history.csv file</h1>
+                <input type="file" onChange={handleFileChange} />
+                <button className="upload-btn" onClick={generateGraph}>Generate yours graphs</button>
+            </div>
+            <div className="filter-section">
+
+            </div>
 
             {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} />}
             {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} />}
