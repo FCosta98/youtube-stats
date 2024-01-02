@@ -33,6 +33,12 @@ body, html{
 .nav-link {
     text-decoration: none;
     color: #fff;
+    height: 25px;
+    width: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
 }
 .active-link {
     background-color: #eee !important;
