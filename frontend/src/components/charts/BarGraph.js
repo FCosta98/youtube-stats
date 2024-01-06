@@ -1,16 +1,17 @@
 import { Bar } from "react-chartjs-2";
+import '../../css/BarGraph.css'
 
-export default function BarGraph({ chartData }){
+export default function BarGraph({ chartData, title }){
   return (
-    <div>
-      <h2 style={{ textAlign: "center" }}>Number of watched videos</h2>
+    <div className="main-container">
+      <h2 style={{ textAlign: "center" }}>{title}</h2>
       <Bar
         data={chartData}
         options={{
           plugins: {
             title: {
-              display: true,
-              text: "Number of watched videos"
+              display: false,
+              text: "Number of watched prout"
             },
             legend: {
               display: false

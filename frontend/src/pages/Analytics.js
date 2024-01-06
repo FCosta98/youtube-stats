@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header.js';
 
 import '../css/Analytics.css'
@@ -81,10 +81,13 @@ export default function Analytics() {
             <div className="filter-section">
 
             </div>
-
-            {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} />}
-            {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} />}
-            {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} />}
+            <div className="graph-container">
+                {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"}/>}
+                {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Total of creator watched"} />}
+            </div>
+            <div className="graph-container">
+                {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} title={"Proportion of category watched"} />}
+            </div>
         </div>
     )
 }
