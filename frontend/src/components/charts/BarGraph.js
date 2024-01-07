@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bar } from "react-chartjs-2";
 import '../../css/BarGraph.css'
 
@@ -14,11 +14,15 @@ export default function BarGraph({ chartData, title, handleFilter, graph_type })
   const handleSelectChange = async (event) => {
     const selectedValue = event.target.value;
     const additionalParams = {
-      by: selectedValue,
+      "by": selectedValue,
     };
     const new_data = await handleFilter(graph_type, additionalParams);
     setChartData2(new_data);
   };
+
+  useEffect(() => {
+    setChartData2(chartData);
+  }, [chartData]);
 
   return (
     <div className="main-container">
