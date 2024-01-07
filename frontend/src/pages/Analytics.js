@@ -105,7 +105,7 @@ export default function Analytics() {
     }
 
     return (
-        <div>
+        <div className="page-container">
             <Header />
             <div className="upload-section">
                 <h1 className="upload-section-title">Drag and drop your extended-history.csv file</h1>
