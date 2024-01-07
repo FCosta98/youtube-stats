@@ -20,3 +20,8 @@
 .upload-btn:hover{
     background-color: #0056b3;
 }
+
+.graph-container{
+    display: flex;
+    justify-content: space-evenly;
+}

@@ -1,0 +1,12 @@
+.main-container{
+    width: 45%;
+}
+.top-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.custom-dropdown{
+    height: 25px;
+    width: 75px;
+}

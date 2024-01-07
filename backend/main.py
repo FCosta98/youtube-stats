@@ -176,7 +176,7 @@ async def generate_graph(file: UploadFile = File(...)):
 
         category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
         categories = [str(category) for category in category_df.index]
-        counts = list(creator_watched)
+        counts = list(category_df)
         colors = [colors_map[i] for i in range(len(categories))]
         category_graph_data = get_bar_graph_data(categories, counts, colors)
 
@@ -189,4 +189,27 @@ async def generate_graph(file: UploadFile = File(...)):
             "videos_watched_graph": videos_watched_graph_data,
             "creator_watched_graph": creator_watched_graph_data,
             "category_graph_data": category_graph_data,
+        }
+    
+@app.post("/all_videos")
+async def filter_all_videos(by: str, file: UploadFile = File(...)):
+    if file.filename.endswith('.csv'):
+        content = await file.read()
+
+        content_str = str(content, 'utf-8')
+        csv_data = StringIO(content_str)
+        
+        df = pd.read_csv(csv_data)
+
+        df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        videos_watched = df.groupby(df['time'].dt.to_period('Y')).size() if by == "Year" else df.groupby(df['time'].dt.to_period('M')).size()
+        months = [str(period) for period in videos_watched.index]
+        counts = list(videos_watched)
+        videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)')
+
+        await file.close()
+
+
+        return {
+            "filtered_data": videos_watched_graph_data,
         }

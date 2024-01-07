@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header.js';
 
 import '../css/Analytics.css'
@@ -70,6 +70,40 @@ export default function Analytics() {
         }
     };
 
+    async function get_data_from_filter(graph_type, filters = {}){
+        if (!selectedFile) {
+            alert('Please select a file!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const url = new URL('http://127.0.0.1:8000/' + graph_type);
+
+        // Append additional parameters to the URL
+        Object.keys(filters).forEach(key => {
+            url.searchParams.append(key, filters[key]);
+        });
+
+        try {
+            const response = await axios.post(url.toString(), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('File Filtered successfully!');
+                return response.data["filtered_data"];
+            } else {
+                console.error('Upload failed with status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error occurred during file upload:', error);
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -81,10 +115,13 @@ export default function Analytics() {
             <div className="filter-section">
 
             </div>
-
-            {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} />}
-            {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} />}
-            {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} />}
+            <div className="graph-container">
+                {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} graph_type={"all_videos"} handleFilter={get_data_from_filter}/>}
+                {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Total of creator watched"} />}
+            </div>
+            <div className="graph-container">
+                {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} title={"Proportion of category watched"} />}
+            </div>
         </div>
     )
 }
