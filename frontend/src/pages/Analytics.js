@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header.js';
 
 import '../css/Analytics.css'
@@ -17,6 +17,7 @@ import {
   } from 'chart.js';
 import BarGraph from "../components/charts/BarGraph.js"
 import DoughnutGraph from "../components/charts/DoughnutGraph.js"
+import FilterBar from "../components/FilterBar.js";
 
 
 ChartJS.register(
@@ -104,6 +105,43 @@ export default function Analytics() {
         }
     }
 
+    async function update_data_filter_bar(filters = {}){
+        if (!selectedFile) {
+            alert('Please select a file!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const url = new URL('http://127.0.0.1:8000/filters');
+
+        // Append additional parameters to the URL
+        Object.keys(filters).forEach(key => {
+            url.searchParams.append(key, filters[key]);
+        });
+
+        try {
+            const response = await axios.post(url.toString(), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('File FILTERED successfully!');
+                setVideosWatchedChartData(response.data["videos_watched_graph"]);
+                setCreatorWatchedChartData(response.data["creator_watched_graph"]);
+                setCategoriesChartData(response.data["category_graph_data"]);
+                return;
+            } else {
+                console.error('Upload failed with status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error occurred during file upload:', error);
+        }
+    }
+
     return (
         <div className="page-container">
             <Header />
@@ -112,9 +150,7 @@ export default function Analytics() {
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={generateGraph}>Generate yours graphs</button>
             </div>
-            <div className="filter-section">
-
-            </div>
+            <FilterBar handleFilter={update_data_filter_bar} />
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} graph_type={"all_videos"} handleFilter={get_data_from_filter}/>}
                 {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Total of creator watched"} />}
