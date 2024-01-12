@@ -36,6 +36,13 @@ export default function Analytics() {
     const [creatorWatchedChartData, setCreatorWatchedChartData] = useState(null)
     const [categoriesChartData, setCategoriesChartData] = useState(null)
 
+    const [filters, setFilters] = useState({
+        "max_time": "ALL",
+        "min_time": "ALL",
+        "categories_filter": "ALL",
+        "by": "Month",
+    });
+
     const handleFileChange = (event) => {
         console.log("FILE SELECTED :", event.target.files[0])
         setSelectedFile(event.target.files[0]);
@@ -46,6 +53,13 @@ export default function Analytics() {
             alert('Please select a file!');
             return;
         }
+
+        setFilters({
+            "max_time": "ALL",
+            "min_time": "ALL",
+            "categories_filter": "ALL",
+            "by": "Month",
+        });
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -71,11 +85,16 @@ export default function Analytics() {
         }
     };
 
-    async function get_data_from_filter(graph_type, filters = {}){
+    // async function get_data_from_filter(graph_type, filters = {}){
+    async function get_data_from_filter(graph_type, new_value, type){
         if (!selectedFile) {
             alert('Please select a file!');
             return;
         }
+
+        const additionalParams = filters;
+        additionalParams[type] = new_value;
+        setFilters(additionalParams);
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -83,8 +102,8 @@ export default function Analytics() {
         const url = new URL('http://127.0.0.1:8000/' + graph_type);
 
         // Append additional parameters to the URL
-        Object.keys(filters).forEach(key => {
-            url.searchParams.append(key, filters[key]);
+        Object.keys(additionalParams).forEach(key => {
+            url.searchParams.append(key, additionalParams[key]);
         });
 
         try {
@@ -105,11 +124,15 @@ export default function Analytics() {
         }
     }
 
-    async function update_data_filter_bar(filters = {}){
+    async function update_data_filter_bar(new_value, type){
         if (!selectedFile) {
             alert('Please select a file!');
             return;
         }
+
+        const additionalParams = filters;
+        additionalParams[type] = new_value;
+        setFilters(additionalParams);
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -117,8 +140,8 @@ export default function Analytics() {
         const url = new URL('http://127.0.0.1:8000/filters');
 
         // Append additional parameters to the URL
-        Object.keys(filters).forEach(key => {
-            url.searchParams.append(key, filters[key]);
+        Object.keys(additionalParams).forEach(key => {
+            url.searchParams.append(key, additionalParams[key]);
         });
 
         try {
