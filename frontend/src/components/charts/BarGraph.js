@@ -11,12 +11,13 @@ export default function BarGraph({ chartData, title, handleFilter, graph_type })
   const [chartData2, setChartData2] = useState(chartData);
   const filters = filterOptions[graph_type];
 
-  const handleSelectChange = async (event) => {
+  const handleSelectChange = async (event, type) => {
     const selectedValue = event.target.value;
-    const additionalParams = {
-      "by": selectedValue,
-    };
-    const new_data = await handleFilter(graph_type, additionalParams);
+    // const additionalParams = {
+    //   "by": selectedValue,
+    // };
+    // const new_data = await handleFilter(graph_type, additionalParams);
+    const new_data = await handleFilter(graph_type, selectedValue, type);
     setChartData2(new_data);
   };
 
@@ -29,7 +30,7 @@ export default function BarGraph({ chartData, title, handleFilter, graph_type })
       <div className="top-container">
         <h2 style={{ textAlign: "center" }}>{title}</h2>
         {graph_type != null &&
-          <select className="custom-dropdown" onChange={handleSelectChange}>
+          <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "by")}>
             {filters.map((option, index) => (
               <option key={index} value={option}>
                 {option}

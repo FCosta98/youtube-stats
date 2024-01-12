@@ -42,45 +42,45 @@ const filterOptions = {
 }
 
 export default function FilterBar({ handleFilter }) {
-    const [filters, setFilters] = useState({
-        "max_time": "ALL",
-        "min_time": "ALL",
-        "categories_filter": "ALL"
-    });
 
     const handleSelectChange = async (event, type) => {
         const selectedValue = event.target.value;
-        const additionalParams = filters;
-        additionalParams[type] = selectedValue;
-        setFilters(additionalParams);
-        const new_data = await handleFilter(additionalParams);
+        const new_data = await handleFilter(selectedValue, type);
         return;
     };
 
     return (
         <div className="filter-container">
-            <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "max_time")}>
-                {filterOptions["time"].map((option, index) => (
-                    <option key={index} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "min_time")}>
-                {filterOptions["time"].map((option, index) => (
-                    <option key={index} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "categories_filter")}>
-                {filterOptions["categories_filter"].map((option, index) => (
-                    <option key={index} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-
+            <div className="filter-section">
+                <h3>Max Time:</h3>
+                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "max_time")}>
+                    {filterOptions["time"].map((option, index) => (
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="filter-section">
+            <h3>Min Time:</h3>
+                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "min_time")}>
+                    {filterOptions["time"].map((option, index) => (
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="filter-section">
+            <h3>Category:</h3>
+                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "categories_filter")}>
+                    {filterOptions["categories_filter"].map((option, index) => (
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
         </div>
     );
 }

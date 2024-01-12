@@ -2,3 +2,12 @@
     display: flex;
     justify-content: space-evenly;
 }
+.filter-section{
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.filter-section select{
+    margin-left: 15px;
+}
