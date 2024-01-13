@@ -13,7 +13,7 @@ export default function Dashboard({token}) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/user-data', {
+        const response = await axios.get('http://127.0.0.1:8000/v1/auth/google/user-data', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

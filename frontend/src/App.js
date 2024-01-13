@@ -12,13 +12,13 @@ export default function App() {
     const [isAuth, setIsAuth] = useState(false)
 
     //login useeffect
-    // useEffect(() => {
-    //     if (googleAccessToken) {
-    //         console.log("GOOGLE TOKEN:", googleAccessToken)
-    //         setGoogleAccessToken(googleAccessToken)
-    //         setIsAuth(true);
-    //     }
-    // }, [googleAccessToken]);
+    useEffect(() => {
+        if (googleAccessToken) {
+            console.log("GOOGLE TOKEN:", googleAccessToken)
+            setGoogleAccessToken(googleAccessToken)
+            setIsAuth(true);
+        }
+    }, [googleAccessToken]);
 
     return (
         <Router>
