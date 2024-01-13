@@ -24,7 +24,7 @@ const Homepage = () => {
         formData.append('file', selectedFile);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/upload-history', formData, {
+            const response = await axios.post('http://127.0.0.1:8000/v1/complete-history', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

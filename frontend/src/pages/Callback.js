@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 export default function Callback() {
 
@@ -7,7 +7,7 @@ export default function Callback() {
         const handleCallback = async () => {
             const code  = new URLSearchParams(window.location.search).get('code');
             console.log("CODE :", code);
-            axios.post("http://127.0.0.1:8000/auth/google", {code: code})
+            axios.post("http://127.0.0.1:8000/v1/auth/google/auth", {code: code})
             .then(res => {
                 console.log("RESPONSE DATA :", res.data.token)
                 localStorage.setItem('googleAccessToken', res.data.token);

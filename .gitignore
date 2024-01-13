@@ -6,6 +6,7 @@ commandes.txt
 backend/client_secret_1070126863055-ltv5ll8s7oogjoh1v6r5164f4cd85u6d.apps.googleusercontent.com.json
 backend/__pycache__
 backend/utils/__pycache__
+backend/controller/__pycache__
 
 frontend/node_modules
 frontend/build

@@ -65,7 +65,7 @@ export default function Analytics() {
         formData.append('file', selectedFile);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/generate-graph', formData, {
+            const response = await axios.post('http://127.0.0.1:8000/v1/analytics/generate-graph', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -99,7 +99,7 @@ export default function Analytics() {
         const formData = new FormData();
         formData.append('file', selectedFile);
 
-        const url = new URL('http://127.0.0.1:8000/' + graph_type);
+        const url = new URL('http://127.0.0.1:8000/v1/analytics/' + graph_type);
 
         // Append additional parameters to the URL
         Object.keys(additionalParams).forEach(key => {
@@ -137,7 +137,7 @@ export default function Analytics() {
         const formData = new FormData();
         formData.append('file', selectedFile);
 
-        const url = new URL('http://127.0.0.1:8000/filters');
+        const url = new URL('http://127.0.0.1:8000/v1/analytics/filters');
 
         // Append additional parameters to the URL
         Object.keys(additionalParams).forEach(key => {
