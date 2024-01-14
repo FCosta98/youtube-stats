@@ -3,20 +3,21 @@ import { Bar } from "react-chartjs-2";
 import '../../css/BarGraph.css'
 
 const filterOptions = {
-  "all_videos": ['Month', 'Year'],
-  "": []
+  "all_videos": ["Month", "Year"],
+  "hours_watched": ["General", "Mean"],
+}
+const filterParams = {
+  "all_videos": "by",
+  "hours_watched": "isMean",
 }
 
 export default function BarGraph({ chartData, title, handleFilter, graph_type }){
   const [chartData2, setChartData2] = useState(chartData);
   const filters = filterOptions[graph_type];
 
-  const handleSelectChange = async (event, type) => {
+  const handleSelectChange = async (event) => {
     const selectedValue = event.target.value;
-    // const additionalParams = {
-    //   "by": selectedValue,
-    // };
-    // const new_data = await handleFilter(graph_type, additionalParams);
+    const type = filterParams[graph_type]
     const new_data = await handleFilter(graph_type, selectedValue, type);
     setChartData2(new_data);
   };
@@ -30,7 +31,7 @@ export default function BarGraph({ chartData, title, handleFilter, graph_type })
       <div className="top-container">
         <h2 style={{ textAlign: "center" }}>{title}</h2>
         {graph_type != null &&
-          <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "by")}>
+          <select className="custom-dropdown" onChange={(event) => handleSelectChange(event)}>
             {filters.map((option, index) => (
               <option key={index} value={option}>
                 {option}
@@ -50,7 +51,7 @@ export default function BarGraph({ chartData, title, handleFilter, graph_type })
             legend: {
               display: false
             }
-          }
+          },
         }}
       />
     </div>

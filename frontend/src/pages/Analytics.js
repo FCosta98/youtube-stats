@@ -35,12 +35,15 @@ export default function Analytics() {
     const [videosWatchedChartData, setVideosWatchedChartData] = useState(null)
     const [creatorWatchedChartData, setCreatorWatchedChartData] = useState(null)
     const [categoriesChartData, setCategoriesChartData] = useState(null)
+    const [hoursWatchedChartData, setHoursWatchedChartData] = useState(null)
+    const [favouriteVideosChartData, setFavouriteVideosChartData] = useState(null)
 
     const [filters, setFilters] = useState({
         "max_time": "ALL",
         "min_time": "ALL",
         "categories_filter": "ALL",
         "by": "Month",
+        "isMean": "General",
     });
 
     const handleFileChange = (event) => {
@@ -59,6 +62,7 @@ export default function Analytics() {
             "min_time": "ALL",
             "categories_filter": "ALL",
             "by": "Month",
+            "isMean": "General",
         });
 
         const formData = new FormData();
@@ -76,6 +80,8 @@ export default function Analytics() {
                 setVideosWatchedChartData(response.data["videos_watched_graph"]);
                 setCreatorWatchedChartData(response.data["creator_watched_graph"]);
                 setCategoriesChartData(response.data["category_graph_data"]);
+                setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
+                setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
                 return;
             } else {
                 console.error('Upload failed with status:', response.status);
@@ -85,7 +91,6 @@ export default function Analytics() {
         }
     };
 
-    // async function get_data_from_filter(graph_type, filters = {}){
     async function get_data_from_filter(graph_type, new_value, type){
         if (!selectedFile) {
             alert('Please select a file!');
@@ -156,6 +161,8 @@ export default function Analytics() {
                 setVideosWatchedChartData(response.data["videos_watched_graph"]);
                 setCreatorWatchedChartData(response.data["creator_watched_graph"]);
                 setCategoriesChartData(response.data["category_graph_data"]);
+                setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
+                setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
                 return;
             } else {
                 console.error('Upload failed with status:', response.status);
@@ -176,7 +183,11 @@ export default function Analytics() {
             <FilterBar handleFilter={update_data_filter_bar} />
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} graph_type={"all_videos"} handleFilter={get_data_from_filter}/>}
-                {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Total of creator watched"} />}
+                {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Most watched creators"} />}
+            </div>
+            <div className="graph-container">
+                {favouriteVideosChartData !== null && <BarGraph chartData={favouriteVideosChartData} title={"Most watched videos"}/>}
+                {hoursWatchedChartData !== null && <BarGraph chartData={hoursWatchedChartData} title={"When do you watch your videos ?"} graph_type={"hours_watched"} handleFilter={get_data_from_filter}/>}
             </div>
             <div className="graph-container">
                 {categoriesChartData !== null && <DoughnutGraph chartData={categoriesChartData} title={"Proportion of category watched"} />}
