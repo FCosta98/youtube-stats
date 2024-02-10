@@ -11,3 +11,23 @@
     height: 25px;
     width: 75px;
 }
+.pagination-container{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+}
+.pagination-element{
+    border-radius: 12px;
+    margin: 5px 15px;
+    padding: 6px;
+    border: none;
+}
+.pagination-element-disabled{
+    color: gray;
+    visibility: hidden;
+}
+.pagination-element-enabled{
+    color: rgba(255, 99, 132, 0.5);
+    cursor: pointer;
+    /* color: #007bff; */
+}
