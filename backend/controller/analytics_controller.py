@@ -131,7 +131,6 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         df = manage_analytics_filter(df, max_time, min_time, categories_filter)
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
-        # videos_watched = df.groupby(df['time'].dt.to_period('Y')).size() if by == "Year" else df.groupby(df['time'].dt.to_period('M')).size()
         first_year = df.time.dt.year.min()
         last_year = df.time.dt.year.max()
         if by == "Month":

@@ -85,7 +85,7 @@ export default function Analytics() {
             });
 
             if (response.status === 200) {
-                console.log('File uploaded successfully!', response.data);
+                console.log('File uploaded successfully!');
                 setVideosWatchedChartData(response.data["videos_watched_graph"]);
                 setCreatorWatchedChartData(response.data["creator_watched_graph"]);
                 setCategoriesChartData(response.data["category_graph_data"]);
@@ -147,14 +147,25 @@ export default function Analytics() {
         }
     }
 
-    async function update_data_filter_bar(new_value, type){
+    async function update_data_filter_bar(new_value, type, reset=false){
         if (!selectedFile) {
             alert('Please select a file!');
             return;
         }
 
-        const additionalParams = filters;
-        additionalParams[type] = new_value;
+        let additionalParams = filters;
+        if(reset){
+            additionalParams = {
+                "max_time": "ALL",
+                "min_time": "ALL",
+                "categories_filter": "ALL",
+                "by": "Month",
+                "isMean": "General",
+            };
+        }
+        else{
+            additionalParams[type] = new_value;
+        }
         setFilters(additionalParams);
 
         const formData = new FormData();
@@ -266,7 +277,7 @@ export default function Analytics() {
             <div className="upload-section">
                 <h1 className="upload-section-title">Drag and drop your extended-history.csv file</h1>
                 <input type="file" onChange={handleFileChange} />
-                <button className="upload-btn" onClick={generateGraph}>Generate yours graphs</button>
+                <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
             <FilterBar handleFilter={update_data_filter_bar} />
             <div className="graph-container">
