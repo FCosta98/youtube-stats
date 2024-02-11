@@ -131,7 +131,14 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         df = manage_analytics_filter(df, max_time, min_time, categories_filter)
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
-        videos_watched = df.groupby(df['time'].dt.to_period('Y')).size() if by == "Year" else df.groupby(df['time'].dt.to_period('M')).size()
+        # videos_watched = df.groupby(df['time'].dt.to_period('Y')).size() if by == "Year" else df.groupby(df['time'].dt.to_period('M')).size()
+        first_year = df.time.dt.year.min()
+        last_year = df.time.dt.year.max()
+        if by == "Month":
+            videos_watched = df[df.time.dt.year == last_year]
+            videos_watched = videos_watched.groupby(df['time'].dt.to_period('M')).size()
+        else:
+            videos_watched = df.groupby(df['time'].dt.to_period('Y')).size()
         months = [str(period) for period in videos_watched.index]
         counts = list(videos_watched)
         videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)', "x")
@@ -165,6 +172,9 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
 
         return {
             "videos_watched_graph": videos_watched_graph_data,
+            "next_year": None,
+            "current_year": last_year,
+            "prev_year": last_year-1 if last_year-1 >= first_year else None,
             "creator_watched_graph": creator_watched_graph_data,
             "category_graph_data": category_graph_data,
             "hours_watched_graph_data": hours_watched_graph_data,

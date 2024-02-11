@@ -181,6 +181,15 @@ export default function Analytics() {
                 setCategoriesChartData(response.data["category_graph_data"]);
                 setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
                 setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
+
+                pagination["current_year"] = response.data["current_year"];
+                pagination["next_year"] = response.data["next_year"];
+                pagination["prev_year"] = response.data["prev_year"];
+                pagination["next_top_creator_page"] = 2;
+                pagination["prev_top_creator_page"] = null;
+                pagination["next_top_videos_page"] = 2;
+                pagination["prev_top_videos_page"] = null;
+                setPagination(pagination);
                 return;
             } else {
                 console.error('Upload failed with status:', response.status);
@@ -213,7 +222,6 @@ export default function Analytics() {
     }
 
     async function get_new_page(graph_type, page){
-        console.log("GRAPH TYPE :", graph_type, "PAGE :", page)
         if (!selectedFile) {
             alert('Please select a file!');
             return;
