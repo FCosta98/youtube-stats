@@ -18,7 +18,8 @@ export default function DoughnutGraph({ chartData, title}){
               text: "Categories proportion"
             },
             legend: {
-              display: true
+              display: false,
+              // maxHeight: 30
             }
           }
         }}
