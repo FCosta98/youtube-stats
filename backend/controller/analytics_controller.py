@@ -134,7 +134,7 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         first_year = df.time.dt.year.min()
         last_year = df.time.dt.year.max()
         if by == "Month":
-            videos_watched = df[df.time.dt.year == last_year]
+            videos_watched = df[df.time.dt.year == last_year].reset_index(drop=True)
             videos_watched = videos_watched.groupby(df['time'].dt.to_period('M')).size()
         else:
             videos_watched = df.groupby(df['time'].dt.to_period('Y')).size()
@@ -149,6 +149,7 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
 
         category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
         categories = [str(category) for category in category_df.index]
+        print("CATETTETE :", categories)
         counts = list(category_df)
         colors = [colors_map[i] for i in range(len(categories))]
         category_graph_data = get_bar_graph_data(categories, counts, colors, "x")
@@ -172,8 +173,8 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         return {
             "videos_watched_graph": videos_watched_graph_data,
             "next_year": None,
-            "current_year": last_year,
-            "prev_year": last_year-1 if last_year-1 >= first_year else None,
+            "current_year": int(last_year),
+            "prev_year": int(last_year)-1 if last_year-1 >= first_year else None,
             "creator_watched_graph": creator_watched_graph_data,
             "category_graph_data": category_graph_data,
             "hours_watched_graph_data": hours_watched_graph_data,

@@ -162,6 +162,11 @@ export default function Analytics() {
                 "by": "Month",
                 "isMean": "General",
             };
+            // //reset the select item
+            var selects = document.querySelectorAll('select'); // Select all <select> elements
+            selects.forEach(function(select) {
+                select.selectedIndex = 0; // Set selectedIndex to 0 for each <select>
+            });
         }
         else{
             additionalParams[type] = new_value;
