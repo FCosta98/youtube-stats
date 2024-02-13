@@ -60,51 +60,6 @@ export default function Analytics() {
         setSelectedFile(event.target.files[0]);
     };
 
-    const generateGraph = async () => {
-        if (!selectedFile) {
-            alert('Please select a file!');
-            return;
-        }
-
-        setFilters({
-            "max_time": "ALL",
-            "min_time": "ALL",
-            "categories_filter": "ALL",
-            "by": "Month",
-            "isMean": "General",
-        });
-
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-
-        try {
-            const response = await axios.post('http://127.0.0.1:8000/v1/analytics/generate-graph', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (response.status === 200) {
-                console.log('File uploaded successfully!', response.data);
-                setVideosWatchedChartData(response.data["videos_watched_graph"]);
-                setCreatorWatchedChartData(response.data["creator_watched_graph"]);
-                setCategoriesChartData(response.data["category_graph_data"]);
-                setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
-                setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
-
-                pagination["current_year"] = response.data["current_year"];
-                pagination["next_year"] = response.data["next_year"];
-                pagination["prev_year"] = response.data["prev_year"];
-                setPagination(pagination);
-                return;
-            } else {
-                console.error('Upload failed with status:', response.status);
-            }
-        } catch (error) {
-            console.error('Error occurred during file upload:', error);
-        }
-    };
-
     async function get_data_from_filter(graph_type, new_value, type){
         if (!selectedFile) {
             alert('Please select a file!');
@@ -147,14 +102,30 @@ export default function Analytics() {
         }
     }
 
-    async function update_data_filter_bar(new_value, type){
+    async function update_data_filter_bar(new_value, type, reset=false){
         if (!selectedFile) {
             alert('Please select a file!');
             return;
         }
 
-        const additionalParams = filters;
-        additionalParams[type] = new_value;
+        let additionalParams = filters;
+        if(reset){
+            additionalParams = {
+                "max_time": "ALL",
+                "min_time": "ALL",
+                "categories_filter": "ALL",
+                "by": "Month",
+                "isMean": "General",
+            };
+            // //reset the select item
+            var selects = document.querySelectorAll('select'); // Select all <select> elements
+            selects.forEach(function(select) {
+                select.selectedIndex = 0; // Set selectedIndex to 0 for each <select>
+            });
+        }
+        else{
+            additionalParams[type] = new_value;
+        }
         setFilters(additionalParams);
 
         const formData = new FormData();
@@ -181,6 +152,15 @@ export default function Analytics() {
                 setCategoriesChartData(response.data["category_graph_data"]);
                 setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
                 setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
+
+                pagination["current_year"] = response.data["current_year"];
+                pagination["next_year"] = response.data["next_year"];
+                pagination["prev_year"] = response.data["prev_year"];
+                pagination["next_top_creator_page"] = 2;
+                pagination["prev_top_creator_page"] = null;
+                pagination["next_top_videos_page"] = 2;
+                pagination["prev_top_videos_page"] = null;
+                setPagination(pagination);
                 return;
             } else {
                 console.error('Upload failed with status:', response.status);
@@ -213,7 +193,6 @@ export default function Analytics() {
     }
 
     async function get_new_page(graph_type, page){
-        console.log("GRAPH TYPE :", graph_type, "PAGE :", page)
         if (!selectedFile) {
             alert('Please select a file!');
             return;
@@ -258,7 +237,7 @@ export default function Analytics() {
             <div className="upload-section">
                 <h1 className="upload-section-title">Drag and drop your extended-history.csv file</h1>
                 <input type="file" onChange={handleFileChange} />
-                <button className="upload-btn" onClick={generateGraph}>Generate yours graphs</button>
+                <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
             <FilterBar handleFilter={update_data_filter_bar} />
             <div className="graph-container">
