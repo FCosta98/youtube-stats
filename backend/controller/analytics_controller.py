@@ -149,7 +149,6 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
 
         category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
         categories = [str(category) for category in category_df.index]
-        print("CATETTETE :", categories)
         counts = list(category_df)
         colors = [colors_map[i] for i in range(len(categories))]
         category_graph_data = get_bar_graph_data(categories, counts, colors, "x")

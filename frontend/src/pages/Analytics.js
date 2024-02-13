@@ -60,51 +60,6 @@ export default function Analytics() {
         setSelectedFile(event.target.files[0]);
     };
 
-    const generateGraph = async () => {
-        if (!selectedFile) {
-            alert('Please select a file!');
-            return;
-        }
-
-        setFilters({
-            "max_time": "ALL",
-            "min_time": "ALL",
-            "categories_filter": "ALL",
-            "by": "Month",
-            "isMean": "General",
-        });
-
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-
-        try {
-            const response = await axios.post('http://127.0.0.1:8000/v1/analytics/generate-graph', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (response.status === 200) {
-                console.log('File uploaded successfully!');
-                setVideosWatchedChartData(response.data["videos_watched_graph"]);
-                setCreatorWatchedChartData(response.data["creator_watched_graph"]);
-                setCategoriesChartData(response.data["category_graph_data"]);
-                setHoursWatchedChartData(response.data["hours_watched_graph_data"]);
-                setFavouriteVideosChartData(response.data["favourites_videos_graph_data"]);
-
-                pagination["current_year"] = response.data["current_year"];
-                pagination["next_year"] = response.data["next_year"];
-                pagination["prev_year"] = response.data["prev_year"];
-                setPagination(pagination);
-                return;
-            } else {
-                console.error('Upload failed with status:', response.status);
-            }
-        } catch (error) {
-            console.error('Error occurred during file upload:', error);
-        }
-    };
-
     async function get_data_from_filter(graph_type, new_value, type){
         if (!selectedFile) {
             alert('Please select a file!');
