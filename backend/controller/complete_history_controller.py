@@ -24,6 +24,18 @@ def fetch_video_data(ids):
     ).execute()
     return video_response["items"]
 
+@complete_history_router.post("/loader-info")
+async def genere_loader(file: UploadFile = File(...), response: Response = None):
+    contents = await file.read()
+    contents = json.loads(contents)
+    contents_df = pd.DataFrame(contents)
+    contents_df['time'] = pd.to_datetime(contents_df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+    contents_df['date'] = contents_df['time'].dt.date
+    return {
+        "nb_videos": len(contents_df),
+        "first_year": contents_df['date'].iloc[0],
+        "last_year": contents_df['date'].iloc[-1]
+    }
 
 @complete_history_router.post("")
 async def upload_file(file: UploadFile = File(...), response: Response = None):
