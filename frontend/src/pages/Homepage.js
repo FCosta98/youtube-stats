@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Modal } from 'flowbite-react';
 import axios from 'axios';
 import Header from '../components/Header.js';
 
@@ -10,7 +9,6 @@ import '../css/Global.css'
 const Homepage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loaderData, setLoaderData] = useState(null);
-    const [openModal, setOpenModal] = useState(false);
 
     const handleFileChange = (event) => {
         console.log("FILE SELECTED :", event.target.files[0])
@@ -36,7 +34,6 @@ const Homepage = () => {
             if (response.status === 200) {
                 console.log('Loading sucessfull :', response.data);
                 setLoaderData(response.data);
-                setOpenModal(true);
                 const modalContainer = document.getElementById("modalContainer");
                 modalContainer.style.display = "block";
             }
