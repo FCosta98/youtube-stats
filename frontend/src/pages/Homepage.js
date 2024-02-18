@@ -8,6 +8,7 @@ import '../css/Global.css'
 
 const Homepage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [loaderData, setLoaderData] = useState(null);
 
     const handleFileChange = (event) => {
         console.log("FILE SELECTED :", event.target.files[0])
@@ -22,6 +23,26 @@ const Homepage = () => {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
+        
+        try{
+            const response = await axios.post('http://127.0.0.1:8000/v1/complete-history/loader-info', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('Loading sucessfull :', response.data);
+                setLoaderData(response.data);
+                const modalContainer = document.getElementById("modalContainer");
+                modalContainer.style.display = "block";
+            }
+
+        } catch (error) {
+            // Handle network errors or other exceptions
+            console.error('Error occurred during file upload 1:', error);
+        }
+          
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/v1/complete-history', formData, {
@@ -57,7 +78,7 @@ const Homepage = () => {
             }
         } catch (error) {
             // Handle network errors or other exceptions
-            console.error('Error occurred during file upload:', error);
+            console.error('Error occurred during file upload 2:', error);
         }
     };
 
@@ -83,6 +104,24 @@ const Homepage = () => {
                         <p>Upload your watch_history_extended.csv file in the analytics section and have fun! </p>
                         <Link className='step-section-cta' to="/analytics"> Analytics</Link>
                     </div>
+                </div>
+            </div>
+
+
+            <div id="modalContainer" className="modal-container">
+                <div id="modal" className="modal">
+                    <h2>Generating file</h2>
+                    {loaderData !== null && 
+                        <div className="">
+                            <p className="">
+                                You watched {loaderData["nb_videos"]} videos between {loaderData["first_year"]} and {loaderData["last_year"]}.
+                            </p>
+                            <p className="">
+                                We are generating your watch_history_extended.csv file. This process could take some minutes.
+                            </p>
+                        </div>
+                    }
+                    <Link className='step-section-cta modal-btn' to="/analytics"> Go to analytics</Link>
                 </div>
             </div>
         </div>
