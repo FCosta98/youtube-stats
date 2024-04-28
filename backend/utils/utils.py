@@ -12,9 +12,12 @@ def get_bar_graph_data(labels, data, color, axis):
         ],
     }
 
-def manage_analytics_filter(df, max_time, min_time, categories_filter):
+def manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter):
+    if creator_filter:
+        creator_filter = creator_filter.split(",")
+        df = df[df["channelTitle"].isin(creator_filter)].reset_index(drop=True)
     if categories_filter != "ALL":
-        df = df[df['category_name'] == categories_filter].reset_index(drop=True)
+        df = df[df["category_name"] == categories_filter].reset_index(drop=True)
     if max_time != "ALL":
         max_time = int(max_time.replace("min", '', 1))
         df = df.dropna(subset=['duration'])

@@ -44,6 +44,7 @@ export default function Analytics() {
         "categories_filter": "ALL",
         "by": "Month",
         "isMean": "General",
+        "creator_filter": "",
     });
     const [pagination, setPagination] = useState({
         "next_year": null,
@@ -116,6 +117,7 @@ export default function Analytics() {
                 "categories_filter": "ALL",
                 "by": "Month",
                 "isMean": "General",
+                "creator_filter": "",
             };
             // //reset the select item
             var selects = document.querySelectorAll('select'); // Select all <select> elements
@@ -231,6 +233,36 @@ export default function Analytics() {
         }
     }
 
+    async function show_suggestions(creator) {
+        if (!selectedFile) {
+            alert('Please select a file!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const url = new URL('http://127.0.0.1:8000/v1/analytics/search_creator');
+        url.searchParams.append("creator", creator);
+
+        try {
+            const response = await axios.post(url.toString(), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('File CREATOR LIST successfully!', response.data);
+                return response.data;
+            } else {
+                console.error('Upload failed with status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error occurred during file upload:', error);
+        }
+    }
+
     return (
         <div className="page-container">
             <Header />
@@ -239,7 +271,7 @@ export default function Analytics() {
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
-            <FilterBar handleFilter={update_data_filter_bar} />
+            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} />
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} has_dropdown={true} graph_type={"all_videos"} handleFilter={get_data_from_filter} next_page={pagination["next_year"]} previous_page={pagination["prev_year"]} handleNewPage={get_new_page}/>}
                 {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Most watched creators"} graph_type={"favourite_creators"} next_page={pagination["next_top_creator_page"]} previous_page={pagination["prev_top_creator_page"]} handleNewPage={get_new_page}/>}
