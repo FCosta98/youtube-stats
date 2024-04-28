@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Multiselect from 'multiselect-react-dropdown';
 
 import '../css/FilterBar.css';
 
@@ -41,13 +42,33 @@ const filterOptions = {
     ],
 }
 
-export default function FilterBar({ handleFilter }) {
+export default function FilterBar({ handleFilter, searchCreator }) {
+    const [creatorList, setCreatorList] = useState([]);
 
     const handleSelectChange = async (event, type) => {
         const selectedValue = event.target.value;
         const new_data = await handleFilter(selectedValue, type);
         return;
     };
+
+    const showSuggestions = async (event) => {
+        const searchTxt = event;
+        if(event == ""){
+            setCreatorList([]);
+            return;
+        }
+        const new_data = await searchCreator(searchTxt);
+        setCreatorList(new_data);
+        return;
+    };
+
+    const onSelect = async (event) => {
+        const selectedValue = event.join(",")
+        const new_data = await handleFilter(selectedValue, "creator_filter");
+        return;
+    };
+
+    
 
     return (
         <div className="filter-container">
@@ -62,7 +83,7 @@ export default function FilterBar({ handleFilter }) {
                 </select>
             </div>
             <div className="filter-section">
-            <h3>Min Time:</h3>
+                <h3>Min Time:</h3>
                 <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "min_time")}>
                     {filterOptions["time"].map((option, index) => (
                         <option key={index} value={option}>
@@ -72,7 +93,7 @@ export default function FilterBar({ handleFilter }) {
                 </select>
             </div>
             <div className="filter-section">
-            <h3>Category:</h3>
+                <h3>Category:</h3>
                 <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "categories_filter")}>
                     {filterOptions["categories_filter"].map((option, index) => (
                         <option key={index} value={option}>
@@ -80,6 +101,16 @@ export default function FilterBar({ handleFilter }) {
                         </option>
                     ))}
                 </select>
+            </div>
+            <div className="filter-section">
+                <h3>Creator:</h3>
+                <Multiselect
+                    options={creatorList} // Options to display in the dropdown
+                    isObject={false}
+                    onSearch={showSuggestions}
+                    onSelect={onSelect} // Function will trigger on select event
+                    onRemove={onSelect} // Function will trigger on remove event
+                />
             </div>
         </div>
     );
