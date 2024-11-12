@@ -12,7 +12,13 @@ def get_bar_graph_data(labels, data, color, axis):
         ],
     }
 
-def manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter):
+def manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range):
+    if date_range:
+        date_range = date_range.split(",")
+        if date_range[0]:
+            df = df[df['time'] >= date_range[0]].reset_index(drop=True)
+        if date_range[1]:
+            df = df[df['time'] <= date_range[1]].reset_index(drop=True)
     if creator_filter:
         creator_filter = creator_filter.split(",")
         df = df[df["channelTitle"].isin(creator_filter)].reset_index(drop=True)

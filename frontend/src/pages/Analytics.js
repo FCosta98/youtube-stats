@@ -45,6 +45,7 @@ export default function Analytics() {
         "by": "Month",
         "isMean": "General",
         "creator_filter": "",
+        "date_range": [null, null],
     });
     const [pagination, setPagination] = useState({
         "next_year": null,
@@ -57,7 +58,6 @@ export default function Analytics() {
     });
 
     const handleFileChange = (event) => {
-        console.log("FILE SELECTED :", event.target.files[0])
         setSelectedFile(event.target.files[0]);
     };
 
@@ -118,6 +118,7 @@ export default function Analytics() {
                 "by": "Month",
                 "isMean": "General",
                 "creator_filter": "",
+                "date_range": [null, null],
             };
             // //reset the select item
             var selects = document.querySelectorAll('select'); // Select all <select> elements
