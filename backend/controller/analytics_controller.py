@@ -98,9 +98,10 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         counts = list(videos_watched)
         videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)', "x")
 
-        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)[:10]
-        creators = [str(creator) for creator in creator_watched.index]
-        counts = list(creator_watched)
+        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)#[:10]
+        top_10_creator_watched = creator_watched[:10]
+        creators = [str(creator) for creator in top_10_creator_watched.index]
+        counts = list(top_10_creator_watched)
         creator_watched_graph_data = get_bar_graph_data(creators, counts, 'rgba(255, 99, 132, 0.5)', "x")
 
         category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
@@ -126,6 +127,8 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         await file.close()
 
         return {
+            "amount_of_videos": df.shape[0],
+            "amount_of_creators": creator_watched.shape[0],
             "videos_watched_graph": videos_watched_graph_data,
             "next_year": None,
             "current_year": int(last_year),

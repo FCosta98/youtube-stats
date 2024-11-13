@@ -31,6 +31,8 @@ def empty_df_response():
     favourites_videos_graph_data = get_empty_bar_graph_data("y") 
     
     return {
+        "amount_of_videos": 0,
+        "amount_of_creators": 0,
         "videos_watched_graph": videos_watched_graph_data,
         "next_year": None,
         "current_year": 1000,
