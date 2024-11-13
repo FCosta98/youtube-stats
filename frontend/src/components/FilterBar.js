@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import Multiselect from 'multiselect-react-dropdown';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 
 import '../css/FilterBar.css';
 
@@ -42,11 +45,18 @@ const filterOptions = {
     ],
 }
 
-export default function FilterBar({ handleFilter, searchCreator }) {
+export default function FilterBar({ handleFilter, searchCreator, multiselectRef, setDateRange, dateRange}) {
     const [creatorList, setCreatorList] = useState([]);
+    const [startDate, endDate] = dateRange;
 
     const handleSelectChange = async (event, type) => {
-        const selectedValue = event.target.value;
+        let selectedValue;
+        if(type=="date_range"){
+            selectedValue = event;
+        }
+        else{
+            selectedValue = event.target.value;
+        }
         const new_data = await handleFilter(selectedValue, type);
         return;
     };
@@ -105,11 +115,30 @@ export default function FilterBar({ handleFilter, searchCreator }) {
             <div className="filter-section">
                 <h3>Creator:</h3>
                 <Multiselect
+                    ref={multiselectRef}
                     options={creatorList} // Options to display in the dropdown
                     isObject={false}
                     onSearch={showSuggestions}
                     onSelect={onSelect} // Function will trigger on select event
                     onRemove={onSelect} // Function will trigger on remove event
+                />
+            </div>
+            <div className="filter-section">
+                <h3>Date:</h3>
+                <DatePicker
+                    selectsRange={true}
+                    startDate={startDate}
+                    endDate={endDate}
+                    dateFormat="dd/MM/yyyy"
+                    onChange={(newRange) => {
+                        setDateRange(newRange);
+
+                        // Format the dates to [YYYY-MM-DD, YYYY-MM-DD]
+                        const formattedRange = newRange.map(date =>
+                            date ? format(date, 'yyyy-MM-dd') : null
+                        );
+                        handleSelectChange(formattedRange, "date_range");
+                    }}
                 />
             </div>
         </div>

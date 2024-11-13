@@ -1,14 +1,14 @@
 import pandas as pd
 from io import StringIO
 from fastapi import APIRouter, UploadFile, File
-from utils.utils import get_bar_graph_data, manage_analytics_filter
+from utils.utils import empty_df_response, get_bar_graph_data, manage_analytics_filter
 from utils.colors_map import colors_map
 
 
 analytics_router = APIRouter(prefix="/v1/analytics", tags=["analytics"])
     
 @analytics_router.post("/all_videos")
-async def filter_all_videos(by: str, max_time: str, min_time: str, categories_filter: str, year: int, creator_filter: str, file: UploadFile = File(...)):
+async def filter_all_videos(by: str, max_time: str, min_time: str, categories_filter: str, year: int, creator_filter: str, date_range: str, file: UploadFile = File(...)):
     if file.filename.endswith('.csv'):
         content = await file.read()
 
@@ -16,10 +16,10 @@ async def filter_all_videos(by: str, max_time: str, min_time: str, categories_fi
         csv_data = StringIO(content_str)
         
         df = pd.read_csv(csv_data)
-
-        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter)
-
+        
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+
         if by != "Year":
             videos_watched = df[df.time.dt.year == year]
             videos_watched = videos_watched.groupby(videos_watched['time'].dt.to_period('M')).size()
@@ -37,7 +37,7 @@ async def filter_all_videos(by: str, max_time: str, min_time: str, categories_fi
         }
     
 @analytics_router.post("/hours_watched")
-async def filter_all_videos(isMean: str, max_time: str, min_time: str, categories_filter: str, creator_filter: str, file: UploadFile = File(...)):
+async def filter_all_videos(isMean: str, max_time: str, min_time: str, categories_filter: str, creator_filter: str, date_range: str, file: UploadFile = File(...)):
     if file.filename.endswith('.csv'):
         content = await file.read()
 
@@ -46,9 +46,9 @@ async def filter_all_videos(isMean: str, max_time: str, min_time: str, categorie
         
         df = pd.read_csv(csv_data)
 
-        df = manage_analytics_filter(df, max_time, min_time, categories_filter,creator_filter)
-
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        df = manage_analytics_filter(df, max_time, min_time, categories_filter,creator_filter, date_range)
+
         if isMean == "General":
             hours_watched = df.groupby(df['time'].dt.hour).size()
         else:
@@ -65,7 +65,7 @@ async def filter_all_videos(isMean: str, max_time: str, min_time: str, categorie
         }
 
 @analytics_router.post("/filters")
-async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_filter: str, creator_filter: str, file: UploadFile = File(...)):
+async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_filter: str, creator_filter: str, date_range: str, file: UploadFile = File(...)):
     if file.filename.endswith('.csv'):
         content = await file.read()
 
@@ -74,9 +74,11 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         
         df = pd.read_csv(csv_data)
 
-        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter)
-
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return empty_df_response()
+        
         first_year = df.time.dt.year.min()
         last_year = df.time.dt.year.max()
         if by == "Month":
@@ -127,7 +129,7 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         }
     
 @analytics_router.post("/pagination")
-async def filter(max_time: str, min_time: str, categories_filter: str, page: int, graph_type: str,  creator_filter: str, file: UploadFile = File(...)):
+async def filter(max_time: str, min_time: str, categories_filter: str, page: int, graph_type: str,  creator_filter: str, date_range: str, file: UploadFile = File(...)):
     if file.filename.endswith('.csv'):
         content = await file.read()
         content_str = str(content, 'utf-8')
@@ -135,7 +137,8 @@ async def filter(max_time: str, min_time: str, categories_filter: str, page: int
         
         df = pd.read_csv(csv_data)
 
-        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter)
+        df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
+        df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
 
         min = 10*(page-1)
         max = 10*page
