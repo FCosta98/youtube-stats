@@ -1,7 +1,7 @@
 import pandas as pd
 from io import StringIO
 from fastapi import APIRouter, UploadFile, File
-from utils.utils import empty_df_response, get_bar_graph_data, manage_analytics_filter
+from utils.utils import empty_df_response, get_bar_graph_data, get_empty_bar_graph_data, manage_analytics_filter
 from utils.colors_map import colors_map
 
 
@@ -19,6 +19,10 @@ async def filter_all_videos(by: str, max_time: str, min_time: str, categories_fi
         
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return {
+                "filtered_data": get_empty_bar_graph_data("x"),
+            }
 
         if by != "Year":
             videos_watched = df[df.time.dt.year == year]
@@ -48,6 +52,10 @@ async def filter_all_videos(isMean: str, max_time: str, min_time: str, categorie
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter,creator_filter, date_range)
+        if df.empty:
+            return {
+                "filtered_data": get_empty_bar_graph_data("x"),
+            }
 
         if isMean == "General":
             hours_watched = df.groupby(df['time'].dt.hour).size()
@@ -139,6 +147,13 @@ async def filter(max_time: str, min_time: str, categories_filter: str, page: int
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return {
+                "data_graph": get_empty_bar_graph_data("x"),
+                "next_year": None,
+                "current_year": 0,
+                "prev_year": None,
+            }
 
         min = 10*(page-1)
         max = 10*page
