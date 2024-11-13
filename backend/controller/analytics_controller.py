@@ -1,7 +1,7 @@
 import pandas as pd
 from io import StringIO
 from fastapi import APIRouter, UploadFile, File
-from utils.utils import get_bar_graph_data, manage_analytics_filter
+from utils.utils import empty_df_response, get_bar_graph_data, manage_analytics_filter
 from utils.colors_map import colors_map
 
 
@@ -76,6 +76,8 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return empty_df_response()
         
         first_year = df.time.dt.year.min()
         last_year = df.time.dt.year.max()

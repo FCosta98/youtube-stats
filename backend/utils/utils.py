@@ -11,6 +11,35 @@ def get_bar_graph_data(labels, data, color, axis):
             },
         ],
     }
+def get_empty_bar_graph_data(axis):
+    return {
+        "labels" : [],
+        "datasets": [
+            {
+                "data": [],
+                "backgroundColor": 'rgba(255, 99, 132, 0.5)',
+                "indexAxis": axis,
+            },
+        ],
+    }
+
+def empty_df_response():
+    videos_watched_graph_data = get_empty_bar_graph_data("x")
+    creator_watched_graph_data = get_empty_bar_graph_data("x")
+    category_graph_data = get_empty_bar_graph_data("x")
+    hours_watched_graph_data = get_empty_bar_graph_data("x")
+    favourites_videos_graph_data = get_empty_bar_graph_data("y") 
+    
+    return {
+        "videos_watched_graph": videos_watched_graph_data,
+        "next_year": None,
+        "current_year": None,
+        "prev_year": None,
+        "creator_watched_graph": creator_watched_graph_data,
+        "category_graph_data": category_graph_data,
+        "hours_watched_graph_data": hours_watched_graph_data,
+        "favourites_videos_graph_data": favourites_videos_graph_data,
+    }
 
 def manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range):
     if date_range:
