@@ -1,7 +1,7 @@
 import pandas as pd
 from io import StringIO
 from fastapi import APIRouter, UploadFile, File
-from utils.utils import empty_df_response, get_bar_graph_data, manage_analytics_filter
+from utils.utils import empty_df_response, get_bar_graph_data, get_empty_bar_graph_data, manage_analytics_filter
 from utils.colors_map import colors_map
 
 
@@ -19,6 +19,10 @@ async def filter_all_videos(by: str, max_time: str, min_time: str, categories_fi
         
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return {
+                "filtered_data": get_empty_bar_graph_data("x"),
+            }
 
         if by != "Year":
             videos_watched = df[df.time.dt.year == year]
@@ -48,6 +52,10 @@ async def filter_all_videos(isMean: str, max_time: str, min_time: str, categorie
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter,creator_filter, date_range)
+        if df.empty:
+            return {
+                "filtered_data": get_empty_bar_graph_data("x"),
+            }
 
         if isMean == "General":
             hours_watched = df.groupby(df['time'].dt.hour).size()
@@ -90,9 +98,10 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         counts = list(videos_watched)
         videos_watched_graph_data = get_bar_graph_data(months, counts, 'rgba(255, 99, 132, 0.5)', "x")
 
-        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)[:10]
-        creators = [str(creator) for creator in creator_watched.index]
-        counts = list(creator_watched)
+        creator_watched = df.groupby(df['channelTitle']).size().sort_values(ascending=False)#[:10]
+        top_10_creator_watched = creator_watched[:10]
+        creators = [str(creator) for creator in top_10_creator_watched.index]
+        counts = list(top_10_creator_watched)
         creator_watched_graph_data = get_bar_graph_data(creators, counts, 'rgba(255, 99, 132, 0.5)', "x")
 
         category_df = df.groupby(df['category_name']).size().sort_values(ascending=False)
@@ -118,6 +127,8 @@ async def filter(by: str, isMean: str, max_time: str, min_time: str, categories_
         await file.close()
 
         return {
+            "amount_of_videos": df.shape[0],
+            "amount_of_creators": creator_watched.shape[0],
             "videos_watched_graph": videos_watched_graph_data,
             "next_year": None,
             "current_year": int(last_year),
@@ -139,6 +150,13 @@ async def filter(max_time: str, min_time: str, categories_filter: str, page: int
 
         df['time'] = pd.to_datetime(df['time'], format="%Y-%m-%dT%H:%M:%S.%fZ", errors='coerce')
         df = manage_analytics_filter(df, max_time, min_time, categories_filter, creator_filter, date_range)
+        if df.empty:
+            return {
+                "data_graph": get_empty_bar_graph_data("x"),
+                "next_year": None,
+                "current_year": 0,
+                "prev_year": None,
+            }
 
         min = 10*(page-1)
         max = 10*page

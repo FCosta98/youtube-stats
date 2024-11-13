@@ -31,6 +31,8 @@ ChartJS.register(
 );
 
 export default function Analytics() {
+    const [amountOfVideos, setAmountOfVideos] = useState(0)
+    const [amountOfCreators, setAmountOfCreators] = useState(0)
     const [selectedFile, setSelectedFile] = useState(null);
     const [videosWatchedChartData, setVideosWatchedChartData] = useState(null)
     const [creatorWatchedChartData, setCreatorWatchedChartData] = useState(null)
@@ -155,6 +157,8 @@ export default function Analytics() {
 
             if (response.status === 200) {
                 console.log('File FILTERED successfully!');
+                setAmountOfVideos(response.data["amount_of_videos"]);
+                setAmountOfCreators(response.data["amount_of_creators"]);
                 setVideosWatchedChartData(response.data["videos_watched_graph"]);
                 setCreatorWatchedChartData(response.data["creator_watched_graph"]);
                 setCategoriesChartData(response.data["category_graph_data"]);
@@ -278,6 +282,9 @@ export default function Analytics() {
                 <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
             <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} multiselectRef={multiselectRef} setDateRange={setDateRange} dateRange={dateRange} />
+            <div className="upload-section">
+                <h1>You watched {amountOfVideos} from {amountOfCreators} creators</h1>
+            </div>
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} has_dropdown={true} graph_type={"all_videos"} handleFilter={get_data_from_filter} next_page={pagination["next_year"]} previous_page={pagination["prev_year"]} handleNewPage={get_new_page}/>}
                 {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Most watched creators"} graph_type={"favourite_creators"} next_page={pagination["next_top_creator_page"]} previous_page={pagination["prev_top_creator_page"]} handleNewPage={get_new_page}/>}
