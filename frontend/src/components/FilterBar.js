@@ -45,7 +45,7 @@ const filterOptions = {
     ],
 }
 
-export default function FilterBar({ handleFilter, searchCreator }) {
+export default function FilterBar({ handleFilter, searchCreator, multiselectRef}) {
     const [creatorList, setCreatorList] = useState([]);
     const [dateRange, setDateRange] = useState([null, null]);
     const [startDate, endDate] = dateRange;
@@ -116,6 +116,7 @@ export default function FilterBar({ handleFilter, searchCreator }) {
             <div className="filter-section">
                 <h3>Creator:</h3>
                 <Multiselect
+                    ref={multiselectRef}
                     options={creatorList} // Options to display in the dropdown
                     isObject={false}
                     onSearch={showSuggestions}

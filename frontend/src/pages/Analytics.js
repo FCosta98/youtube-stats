@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Header from '../components/Header.js';
 
 import '../css/Analytics.css'
@@ -37,6 +37,8 @@ export default function Analytics() {
     const [categoriesChartData, setCategoriesChartData] = useState(null)
     const [hoursWatchedChartData, setHoursWatchedChartData] = useState(null)
     const [favouriteVideosChartData, setFavouriteVideosChartData] = useState(null)
+
+    const multiselectRef = useRef();
 
     const [filters, setFilters] = useState({
         "max_time": "ALL",
@@ -120,7 +122,8 @@ export default function Analytics() {
                 "creator_filter": "",
                 "date_range": [null, null],
             };
-            // //reset the select item
+            multiselectRef.current.resetSelectedValues();
+            //reset the select item
             var selects = document.querySelectorAll('select'); // Select all <select> elements
             selects.forEach(function(select) {
                 select.selectedIndex = 0; // Set selectedIndex to 0 for each <select>
@@ -272,7 +275,7 @@ export default function Analytics() {
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
-            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} />
+            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} multiselectRef={multiselectRef} />
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} has_dropdown={true} graph_type={"all_videos"} handleFilter={get_data_from_filter} next_page={pagination["next_year"]} previous_page={pagination["prev_year"]} handleNewPage={get_new_page}/>}
                 {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Most watched creators"} graph_type={"favourite_creators"} next_page={pagination["next_top_creator_page"]} previous_page={pagination["prev_top_creator_page"]} handleNewPage={get_new_page}/>}
