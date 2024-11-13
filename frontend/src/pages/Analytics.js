@@ -38,6 +38,7 @@ export default function Analytics() {
     const [hoursWatchedChartData, setHoursWatchedChartData] = useState(null)
     const [favouriteVideosChartData, setFavouriteVideosChartData] = useState(null)
 
+    const [dateRange, setDateRange] = useState([null, null]);
     const multiselectRef = useRef();
 
     const [filters, setFilters] = useState({
@@ -122,6 +123,7 @@ export default function Analytics() {
                 "creator_filter": "",
                 "date_range": [null, null],
             };
+            setDateRange([null, null]);
             multiselectRef.current.resetSelectedValues();
             //reset the select item
             var selects = document.querySelectorAll('select'); // Select all <select> elements
@@ -275,7 +277,7 @@ export default function Analytics() {
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
-            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} multiselectRef={multiselectRef} />
+            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} multiselectRef={multiselectRef} setDateRange={setDateRange} dateRange={dateRange} />
             <div className="graph-container">
                 {videosWatchedChartData !== null && <BarGraph chartData={videosWatchedChartData} title={"Total of watched videos"} has_dropdown={true} graph_type={"all_videos"} handleFilter={get_data_from_filter} next_page={pagination["next_year"]} previous_page={pagination["prev_year"]} handleNewPage={get_new_page}/>}
                 {creatorWatchedChartData !== null && <BarGraph chartData={creatorWatchedChartData} title={"Most watched creators"} graph_type={"favourite_creators"} next_page={pagination["next_top_creator_page"]} previous_page={pagination["prev_top_creator_page"]} handleNewPage={get_new_page}/>}

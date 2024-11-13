@@ -45,9 +45,8 @@ const filterOptions = {
     ],
 }
 
-export default function FilterBar({ handleFilter, searchCreator, multiselectRef}) {
+export default function FilterBar({ handleFilter, searchCreator, multiselectRef, setDateRange, dateRange}) {
     const [creatorList, setCreatorList] = useState([]);
-    const [dateRange, setDateRange] = useState([null, null]);
     const [startDate, endDate] = dateRange;
 
     const handleSelectChange = async (event, type) => {
