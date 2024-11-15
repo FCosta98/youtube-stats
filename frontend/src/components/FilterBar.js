@@ -45,7 +45,7 @@ const filterOptions = {
     ],
 }
 
-export default function FilterBar({ handleFilter, searchCreator, multiselectRef, setDateRange, dateRange}) {
+export default function FilterBar({ handleFilter, searchCreator, multiselectRef, setDateRange, dateRange, isOpen}) {
     const [creatorList, setCreatorList] = useState([]);
     const [startDate, endDate] = dateRange;
 
@@ -81,63 +81,76 @@ export default function FilterBar({ handleFilter, searchCreator, multiselectRef,
     
 
     return (
-        <div className="filter-container">
-            <div className="filter-section">
-                <h3>Max Time:</h3>
-                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "max_time")}>
-                    {filterOptions["time"].map((option, index) => (
-                        <option key={index} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
+        <div className={`filter-container ${isOpen ? "open" : ""}`}>
+            <div className="filter-first-row">
+                <div className="filter-section">
+                    <h3>Max Time:</h3>
+                    <select className="custom-dropdown-filter" onChange={(event) => handleSelectChange(event, "max_time")}>
+                        {filterOptions["time"].map((option, index) => (
+                            <option key={index} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="filter-section">
+                    <h3>Min Time:</h3>
+                    <select className="custom-dropdown-filter" onChange={(event) => handleSelectChange(event, "min_time")}>
+                        {filterOptions["time"].map((option, index) => (
+                            <option key={index} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="filter-section">
+                    <h3>Category:</h3>
+                    <select className="custom-dropdown-filter" onChange={(event) => handleSelectChange(event, "categories_filter")}>
+                        {filterOptions["categories_filter"].map((option, index) => (
+                            <option key={index} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="filter-section">
+                    <h3>Date:</h3>
+                    <DatePicker
+                        className="custom-date-picker"
+                        selectsRange={true}
+                        startDate={startDate}
+                        endDate={endDate}
+                        dateFormat="dd/MM/yyyy"
+                        onChange={(newRange) => {
+                            setDateRange(newRange);
+
+                            // Format the dates to [YYYY-MM-DD, YYYY-MM-DD]
+                            const formattedRange = newRange.map(date =>
+                                date ? format(date, 'yyyy-MM-dd') : null
+                            );
+                            handleSelectChange(formattedRange, "date_range");
+                        }}
+                    />
+                </div>
             </div>
-            <div className="filter-section">
-                <h3>Min Time:</h3>
-                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "min_time")}>
-                    {filterOptions["time"].map((option, index) => (
-                        <option key={index} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div className="filter-section">
-                <h3>Category:</h3>
-                <select className="custom-dropdown" onChange={(event) => handleSelectChange(event, "categories_filter")}>
-                    {filterOptions["categories_filter"].map((option, index) => (
-                        <option key={index} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div className="filter-section">
+            <div className="creator-section">
                 <h3>Creator:</h3>
                 <Multiselect
                     ref={multiselectRef}
                     options={creatorList} // Options to display in the dropdown
                     isObject={false}
                     onSearch={showSuggestions}
-                    onSelect={onSelect} // Function will trigger on select event
-                    onRemove={onSelect} // Function will trigger on remove event
-                />
-            </div>
-            <div className="filter-section">
-                <h3>Date:</h3>
-                <DatePicker
-                    selectsRange={true}
-                    startDate={startDate}
-                    endDate={endDate}
-                    dateFormat="dd/MM/yyyy"
-                    onChange={(newRange) => {
-                        setDateRange(newRange);
+                    onSelect={onSelect}
+                    onRemove={onSelect}
 
-                        // Format the dates to [YYYY-MM-DD, YYYY-MM-DD]
-                        const formattedRange = newRange.map(date =>
-                            date ? format(date, 'yyyy-MM-dd') : null
-                        );
-                        handleSelectChange(formattedRange, "date_range");
+                    style={{
+                        chips: { 
+                            background: "blue",
+                        },
+                        multiselectContainer: { 
+                            color: "#333",
+                            marginBottom: "5px",
+                        },
                     }}
                 />
             </div>

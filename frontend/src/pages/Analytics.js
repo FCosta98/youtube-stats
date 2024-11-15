@@ -1,5 +1,7 @@
 import axios from "axios"
-import React, { useState, useRef, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import React, { useState, useRef } from 'react';
 import Header from '../components/Header.js';
 
 import '../css/Analytics.css'
@@ -31,6 +33,7 @@ ChartJS.register(
 );
 
 export default function Analytics() {
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [amountOfVideos, setAmountOfVideos] = useState(0)
     const [amountOfCreators, setAmountOfCreators] = useState(0)
     const [selectedFile, setSelectedFile] = useState(null);
@@ -61,6 +64,10 @@ export default function Analytics() {
         "next_top_videos_page": 2,
         "prev_top_videos_page": null,
     });
+
+    const toggleFiltersMenu = () => {
+        setIsFiltersOpen(!isFiltersOpen);
+    };
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
@@ -275,13 +282,29 @@ export default function Analytics() {
 
     return (
         <div className="page-container">
-            <Header />
+            <div className="analytics-top-container">
+                <Header />
+                <button onClick={toggleFiltersMenu} className={"filter-arrow filter-arrow-enable"}>
+                    {isFiltersOpen ? 
+                        <FontAwesomeIcon className="arrow" icon={faChevronUp} /> 
+                        : 
+                        <FontAwesomeIcon className="arrow" icon={faChevronDown} />
+                    }
+                </button>
+                <FilterBar 
+                    isOpen={isFiltersOpen}
+                    handleFilter={update_data_filter_bar} 
+                    searchCreator={show_suggestions} 
+                    multiselectRef={multiselectRef} 
+                    setDateRange={setDateRange} 
+                    dateRange={dateRange} 
+                />
+            </div>
             <div className="upload-section">
                 <h1 className="upload-section-title">Drag and drop your extended-history.csv file</h1>
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={() => update_data_filter_bar("","",true)}>Generate yours graphs</button>
             </div>
-            <FilterBar handleFilter={update_data_filter_bar} searchCreator={show_suggestions} multiselectRef={multiselectRef} setDateRange={setDateRange} dateRange={dateRange} />
             <div className="upload-section">
                 <h1>You watched {amountOfVideos} from {amountOfCreators} creators</h1>
             </div>

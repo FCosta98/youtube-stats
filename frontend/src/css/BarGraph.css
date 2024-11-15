@@ -10,6 +10,8 @@
 .custom-dropdown{
     height: 25px;
     width: 75px;
+    background-color: rgba(255, 99, 132, 0.5);
+    border: none;
 }
 .pagination-container{
     display: flex;

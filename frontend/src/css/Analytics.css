@@ -2,6 +2,19 @@
     background-color: #f0f8ff;
     height: 100vh;
 }
+.analytics-top-container{
+    background-color: #333;
+    text-align: center;
+}
+.filter-arrow{
+    background-color: #333;
+    color: rgba(240, 52, 93, 0.893);
+    border: none;
+    cursor: pointer;
+}
+.arrow{
+    font-size: 1.5em;
+}
 .upload-section{
     align-items: center;
     padding: 20px;
